@@ -1,0 +1,38 @@
+import java.io.IOException;
+import java.util.*;
+
+import java.util.Iterator;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+
+public class WcReducer extends MapReduceBase implements Reducer<Text,Text, Text, IntWritable>
+{
+
+public void reduce(Text key, Iterator<Text> value,OutputCollector<Text, 
+		IntWritable>output,Reporter rep) throws IOException
+
+{
+HashMap<Text,Integer> map = new HashMap<>();
+// Counting the frequency of each words
+while (value.hasNext())
+{
+Text i = value.next();
+if(!map.containsKey(i)) 
+	map.put(i, 0);
+map.put(i,map.get(i)+1);
+}
+int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+for(Text k: map.keySet()) {
+	int val = map.get(k);
+	if(val < min)
+		min = val;
+	if(val > max)
+		max = val;
+}
+output.collect(key, new IntWritable((min+max)/2));
+}
+}
